@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Platform - Authentication Demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+        <div class="container">
+            <a class="navbar-brand" href="#">Trading Platform</a>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="card text-center">
+                    <div class="card-header bg-success text-white">
+                        <h2>Welcome to Trading Platform</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-warning">
+                            <p>You need to authenticate to access the trading platform.</p>
+                            <p>Please login through Brand Portal to get access.</p>
+                        </div>
+                        
+                        <div id="token-validation" class="d-none mb-4">
+                            <div class="spinner-border text-success" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p>Validating your access token...</p>
+                        </div>
+
+                        <div id="validation-error" class="alert alert-danger d-none">
+                            Error validating token. Please try again.
+                        </div>
+
+                        <div class="mt-4">
+                            <a href="http://localhost:3000?platform=trading&redirect=true" class="btn btn-primary">
+                                <strong>Login with Brand Portal</strong>
+                            </a>
+                            <a href="#" class="btn btn-outline-secondary ms-2" onclick="window.close()">Cancel</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check if there's a token in URL
+        const queryParams = new URLSearchParams(window.location.search);
+        const token = queryParams.get('token');
+
+        if (token) {
+            // Show validation UI
+            document.getElementById('token-validation').classList.remove('d-none');
+            
+            // Simulate token validation - in reality this happens server-side
+            setTimeout(() => {
+                window.location.href = '/dashboard';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brand Portal - Authentication Demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Brand Portal</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ms-auto" id="nav-items">
+                    <li class="nav-item" id="login-nav">
+                        <a class="nav-link" href="#" id="login-link">Login</a>
+                    </li>
+                    <li class="nav-item" id="register-nav">
+                        <a class="nav-link" href="#" id="register-link">Register</a>
+                    </li>
+                    <li class="nav-item d-none" id="dashboard-nav">
+                        <a class="nav-link" href="#" id="dashboard-link">Dashboard</a>
+                    </li>
+                    <li class="nav-item d-none" id="logout-nav">
+                        <a class="nav-link" href="#" id="logout-link">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <!-- Welcome Section -->
+                <div id="welcome-section">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h2 class="card-title">Welcome to Brand Portal</h2>
+                            <p class="card-text">Experience seamless authentication between brands and trading platforms.</p>
+                            <div class="mt-4">
+                                <button class="btn btn-primary me-2" id="welcome-login-btn">Login</button>
+                                <button class="btn btn-outline-primary" id="welcome-register-btn">Register</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Login Form -->
+                <div id="login-section" class="d-none">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Login</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-danger d-none" id="login-error"></div>
+                            <div class="alert alert-info d-none" id="login-message"></div>
+                            <form id="login-form">
+                                <div class="mb-3">
+                                    <label for="login-email" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="login-email" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="login-password" class="form-label">Password</label>
+                                    <input type="password" class="form-control" id="login-password" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Login</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Registration Form -->
+                <div id="register-section" class="d-none">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Register</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-danger d-none" id="register-error"></div>
+                            <form id="register-form">
+                                <div class="mb-3">
+                                    <label for="first-name" class="form-label">First Name</label>
+                                    <input type="text" class="form-control" id="first-name" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="last-name" class="form-label">Last Name</label>
+                                    <input type="text" class="form-control" id="last-name" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="register-email" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="register-email" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="register-password" class="form-label">Password</label>
+                                    <input type="password" class="form-control" id="register-password" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Register</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Section -->
+                <div id="dashboard-section" class="d-none">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h3>User Dashboard</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <h4>Welcome, <span id="user-name">User</span>!</h4>
+                                <p>Email: <span id="user-email"></span></p>
+                                <p>User ID: <span id="user-id"></span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Platform Access Section -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Trading Platforms</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8 offset-md-2 mb-3">
+                                    <div class="card">
+                                        <div class="card-body text-center">
+                                            <h5 class="card-title">Trading Platform</h5>
+                                            <p class="card-text">Access our premier trading platform.</p>
+                                            <button class="btn btn-success" id="access-platform-btn">Access Platform</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <h5>Platform Access Tokens</h5>
+                                <div class="alert alert-info" id="token-info" style="word-break: break-all;">
+                                    <p>No active platform tokens.</p>
+                                </div>
+                                <button class="btn btn-outline-primary d-none" id="revoke-token-btn">Revoke Current Token</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>

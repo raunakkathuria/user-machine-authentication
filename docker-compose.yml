@@ -1,0 +1,111 @@
+services:
+
+  # Brand Application
+  brand-app:
+    build:
+      context: ./brand-app
+      dockerfile: Dockerfile
+    container_name: brand-app
+    restart: unless-stopped
+    depends_on: []
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: ${BRAND_PORT}
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
+      SUPABASE_SERVICE_KEY: ${SUPABASE_SERVICE_KEY}
+      PLATFORM_API_URL: ${PLATFORM_API_URL}
+      JWT_PRIVATE_KEY_PATH: ${JWT_PRIVATE_KEY_PATH}
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./brand-app:/app
+      - /app/node_modules
+      - ./keys:/app/keys:ro
+    networks:
+      - brand-platform-network
+      - supabase_default
+
+  # Trading Platform App
+  platform-app:
+    build:
+      context: ./platform-app
+      dockerfile: Dockerfile
+    container_name: platform-app
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: ${PLATFORM_PORT}
+      BRAND_API_URL: ${BRAND_API_URL}
+      WHITELIST_BRANDS: ${WHITELIST_BRANDS}
+      JWT_PUBLIC_KEY_PATH: ${JWT_PUBLIC_KEY_PATH}
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./platform-app:/app
+      - /app/node_modules
+      - ./keys:/app/keys:ro
+    networks:
+      - brand-platform-network
+      - supabase_default
+
+  # Mock Services (KYC, Wallet, etc.)
+  mock-services:
+    build:
+      context: ./mock-services
+      dockerfile: Dockerfile
+    container_name: mock-services
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: ${MOCK_PORT}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_PUBLIC_KEY_PATH: ${JWT_PUBLIC_KEY_PATH}
+    ports:
+      - "3002:3002"
+    volumes:
+      - ./mock-services:/app
+      - /app/node_modules
+      - ./keys:/app/keys:ro
+    networks:
+      - brand-platform-network
+      - supabase_default
+
+  # Machine-to-Machine Authentication Service
+  m2m-auth:
+    build:
+      context: ./m2m-auth
+      dockerfile: Dockerfile
+    container_name: m2m-auth
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      M2M_PORT: ${M2M_PORT:-3003}
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
+      SUPABASE_SERVICE_KEY: ${SUPABASE_SERVICE_KEY}
+      JWT_PRIVATE_KEY_PATH: ${JWT_PRIVATE_KEY_PATH}
+      JWT_PUBLIC_KEY_PATH: ${JWT_PUBLIC_KEY_PATH}
+    ports:
+      - "3003:3003"
+    volumes:
+      - ./m2m-auth:/app
+      - /app/node_modules
+      - ./keys:/app/keys:ro
+    networks:
+      - brand-platform-network
+      - supabase_default
+
+networks:
+  brand-platform-network:
+    driver: bridge
+  supabase_default:
+    external: true

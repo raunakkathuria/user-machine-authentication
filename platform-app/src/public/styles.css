@@ -1,0 +1,39 @@
+/* Custom styles for the Trading Platform */
+
+body {
+    background-color: #f8f9fa;
+}
+
+.navbar-brand {
+    font-weight: bold;
+}
+
+.card {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.card-header h5 {
+    margin-bottom: 0;
+}
+
+.list-group-item-action:hover {
+    background-color: #f1f8ff;
+}
+
+.badge {
+    font-weight: 500;
+}
+
+.bg-success {
+    background-color: #28a745 !important;
+}
+
+#content-area {
+    min-height: 400px;
+}
+
+.img-fluid {
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+}

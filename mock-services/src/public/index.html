@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>M2M API Demo</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1, h2, h3 {
+      color: #0066cc;
+    }
+    pre {
+      background-color: #f5f5f5;
+      padding: 10px;
+      border-radius: 5px;
+      overflow-x: auto;
+    }
+    code {
+      font-family: 'Courier New', Courier, monospace;
+    }
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .card {
+      flex: 1;
+      min-width: 300px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+    input, select, button, textarea {
+      margin-bottom: 10px;
+      padding: 8px;
+      width: 100%;
+    }
+    button {
+      background-color: #0066cc;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover {
+      background-color: #0055aa;
+    }
+    .response {
+      margin-top: 10px;
+      border-top: 1px solid #ddd;
+      padding-top: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    th, td {
+      text-align: left;
+      padding: 8px;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    .endpoint-btn {
+      margin-right: 5px;
+      margin-bottom: 5px;
+      width: auto;
+      display: inline-block;
+    }
+    .endpoint-btn.get {
+      background-color: #28a745;
+    }
+    .endpoint-btn.post {
+      background-color: #17a2b8;
+    }
+    .success {
+      color: #28a745;
+    }
+    .error {
+      color: #dc3545;
+    }
+  </style>
+</head>
+<body>
+  <h1>M2M API Demo</h1>
+  <p>This demo shows how to use the M2M authentication tokens to access protected resources.</p>
+
+  <div class="card">
+    <h2>1. Get Access Token</h2>
+    <p>First, get an access token from the M2M Auth Service using your client credentials.</p>
+    <form id="tokenForm">
+      <input type="text" id="clientId" placeholder="Client ID" required>
+      <input type="text" id="clientSecret" placeholder="Client Secret" required>
+      <input type="text" id="scopes" placeholder="Scopes (space-separated, e.g. 'api:read api:write')" value="api:read">
+      <button type="submit">Get Token</button>
+    </form>
+    <div class="response" id="tokenResponse">
+      <h4>Response:</h4>
+      <pre><code id="tokenCode"></code></pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>2. Access Protected Resources</h2>
+    <p>Use your token to call different protected endpoints. Each endpoint requires specific scopes.</p>
+    <div>
+      <h4>Available Endpoints:</h4>
+      <button class="endpoint-btn get" data-endpoint="/api/m2m/data" data-method="GET" data-scope="api:read">GET /api/m2m/data</button>
+      <button class="endpoint-btn get" data-endpoint="/api/m2m/events" data-method="GET" data-scope="events:subscribe">GET /api/m2m/events</button>
+      <button class="endpoint-btn post" data-endpoint="/api/m2m/data" data-method="POST" data-scope="api:write">POST /api/m2m/data</button>
+    </div>
+    <div id="requestBody" style="display: none; margin-top: 10px;">
+      <h4>Request Body (for POST requests):</h4>
+      <textarea id="postData" rows="5">{"name": "Test Item", "value": 42}</textarea>
+    </div>
+    <div class="response" id="apiResponse">
+      <h4>Response:</h4>
+      <pre><code id="apiCode"></code></pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Documentation</h2>
+    <h3>Endpoints and Required Scopes</h3>
+    <table>
+      <tr>
+        <th>Endpoint</th>
+        <th>Method</th>
+        <th>Required Scope</th>
+        <th>Description</th>
+      </tr>
+      <tr>
+        <td>/api/m2m/data</td>
+        <td>GET</td>
+        <td>api:read</td>
+        <td>Get protected data</td>
+      </tr>
+      <tr>
+        <td>/api/m2m/events</td>
+        <td>GET</td>
+        <td>events:subscribe</td>
+        <td>Subscribe to events feed</td>
+      </tr>
+      <tr>
+        <td>/api/m2m/data</td>
+        <td>POST</td>
+        <td>api:write</td>
+        <td>Create new data</td>
+      </tr>
+    </table>
+
+    <h3>How to Use</h3>
+    <ol>
+      <li>Register a client in the M2M Auth Service (http://localhost:3003)</li>
+      <li>Note the Client ID and Client Secret</li>
+      <li>Enter your credentials in the form above</li>
+      <li>Request a token with the necessary scopes</li>
+      <li>Use the token to access protected endpoints</li>
+    </ol>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Get token form
+      const tokenForm = document.getElementById('tokenForm');
+      const tokenResponse = document.getElementById('tokenCode');
+      
+      // API call elements
+      const apiResponse = document.getElementById('apiCode');
+      const requestBodyDiv = document.getElementById('requestBody');
+      const postDataArea = document.getElementById('postData');
+      
+      // Current token storage
+      let currentToken = '';
+      
+      // Token request handler
+      tokenForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const clientId = document.getElementById('clientId').value;
+        const clientSecret = document.getElementById('clientSecret').value;
+        const scopes = document.getElementById('scopes').value;
+        
+        try {
+          // Basic auth for token request
+          const basicAuth = btoa(`${clientId}:${clientSecret}`);
+          
+          const response = await fetch('http://localhost:3003/oauth/token', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'Authorization': `Basic ${basicAuth}`
+            },
+            body: new URLSearchParams({
+              'grant_type': 'client_credentials',
+              'scope': scopes
+            })
+          });
+          
+          const data = await response.json();
+          tokenResponse.textContent = JSON.stringify(data, null, 2);
+          
+          if (response.ok && data.access_token) {
+            currentToken = data.access_token;
+            tokenResponse.parentElement.classList.add('success');
+            tokenResponse.parentElement.classList.remove('error');
+          } else {
+            tokenResponse.parentElement.classList.add('error');
+            tokenResponse.parentElement.classList.remove('success');
+          }
+        } catch (error) {
+          tokenResponse.textContent = `Error: ${error.message}`;
+          tokenResponse.parentElement.classList.add('error');
+          tokenResponse.parentElement.classList.remove('success');
+        }
+      });
+      
+      // Endpoint button handlers
+      const endpointButtons = document.querySelectorAll('.endpoint-btn');
+      endpointButtons.forEach(button => {
+        button.addEventListener('click', async () => {
+          const endpoint = button.getAttribute('data-endpoint');
+          const method = button.getAttribute('data-method');
+          const requiredScope = button.getAttribute('data-scope');
+          
+          // Check if we have a token
+          if (!currentToken) {
+            apiResponse.textContent = 'Error: You need to get an access token first!';
+            apiResponse.parentElement.classList.add('error');
+            apiResponse.parentElement.classList.remove('success');
+            return;
+          }
+          
+          // Show/hide request body for POST requests
+          if (method === 'POST') {
+            requestBodyDiv.style.display = 'block';
+          } else {
+            requestBodyDiv.style.display = 'none';
+          }
+          
+          try {
+            // Set up request options
+            const options = {
+              method,
+              headers: {
+                'Authorization': `Bearer ${currentToken}`,
+                'Content-Type': 'application/json'
+              }
+            };
+            
+            // Add body for POST requests
+            if (method === 'POST') {
+              options.body = postDataArea.value;
+            }
+            
+            // Make the API call
+            const response = await fetch(endpoint, options);
+            let data;
+            
+            try {
+              data = await response.json();
+            } catch (e) {
+              data = 'No JSON response';
+            }
+            
+            apiResponse.textContent = JSON.stringify(data, null, 2);
+            
+            if (response.ok) {
+              apiResponse.parentElement.classList.add('success');
+              apiResponse.parentElement.classList.remove('error');
+            } else {
+              apiResponse.parentElement.classList.add('error');
+              apiResponse.parentElement.classList.remove('success');
+            }
+          } catch (error) {
+            apiResponse.textContent = `Error: ${error.message}`;
+            apiResponse.parentElement.classList.add('error');
+            apiResponse.parentElement.classList.remove('success');
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

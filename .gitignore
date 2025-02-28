@@ -1,0 +1,67 @@
+# Node.js dependencies
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+.env.*.local
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Docker data
+supabase-data/
+*.vol
+
+# Editor directories and files
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Debug files
+.pnpm-debug.log*
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# Temp directories
+.tmp/
+.temp/
+temp/
+
+# Build outputs
+dist/
+build/
+out/
+
+# Supabase
+.supabase/
+
+# RSA Keys - Do not commit cryptographic keys
+keys/private/*
+keys/public/*
+**/keys/private/*
+**/keys/public/*
+*.pem
+*.key

@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>M2M Authentication Demo</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1, h2, h3 {
+      color: #0066cc;
+    }
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .card {
+      flex: 1;
+      min-width: 300px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    pre {
+      background-color: #f5f5f5;
+      padding: 10px;
+      border-radius: 5px;
+      overflow-x: auto;
+    }
+    code {
+      font-family: 'Courier New', Courier, monospace;
+    }
+    input, select, button {
+      margin-bottom: 10px;
+      padding: 8px;
+      width: 100%;
+    }
+    button {
+      background-color: #0066cc;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover {
+      background-color: #0055aa;
+    }
+    .response {
+      margin-top: 20px;
+      border-top: 1px solid #ddd;
+      padding-top: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    th, td {
+      text-align: left;
+      padding: 8px;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+  <h1>Machine-to-Machine Authentication Demo</h1>
+  <p>This demo illustrates the OAuth 2.0 Client Credentials flow for service-to-service authentication.</p>
+
+  <div class="card" style="margin-bottom: 20px;">
+    <h2>Admin Authentication</h2>
+    <p>Set an admin token for client management operations.</p>
+    <div style="display: flex; gap: 10px;">
+      <input type="text" id="adminToken" placeholder="Admin Supabase Token" style="flex-grow: 1;">
+      <button id="saveAdminToken">Save Token</button>
+      <button id="clearAdminToken">Clear Token</button>
+    </div>
+    <div id="tokenStatus" style="margin-top: 10px; font-weight: bold;"></div>
+  </div>
+
+
+  <div class="container">
+    <!-- Client Registration Section -->
+    <div class="card">
+      <h2>1. Register Client</h2>
+      <p>First, register a client application that needs to access services.</p>
+      <form id="registerForm">
+        <input type="text" id="clientName" placeholder="Client Name" required>
+        <input type="email" id="contactEmail" placeholder="Contact Email" required>
+        <input type="text" id="description" placeholder="Description">
+        <select id="serviceType">
+          <option value="application">Application</option>
+          <option value="service">Service</option>
+          <option value="device">Device</option>
+        </select>
+        <div>
+          <h4>Requested Scopes:</h4>
+          <label><input type="checkbox" name="scope" value="api:read"> api:read</label>
+          <label><input type="checkbox" name="scope" value="api:write"> api:write</label>
+          <label><input type="checkbox" name="scope" value="events:subscribe"> events:subscribe</label>
+        </div>
+        <button type="submit">Register Client</button>
+      </form>
+      <div class="response" id="registerResponse">
+        <h4>Response:</h4>
+        <pre><code id="registerResponseCode"></code></pre>
+      </div>
+    </div>
+
+    <!-- Token Request Section -->
+    <div class="card">
+      <h2>2. Request Access Token</h2>
+      <p>Use client credentials to request an access token.</p>
+      <form id="tokenForm">
+        <input type="text" id="clientId" placeholder="Client ID" required>
+        <input type="text" id="clientSecret" placeholder="Client Secret" required>
+        <div>
+          <h4>Requested Scopes:</h4>
+          <input type="text" id="tokenScopes" placeholder="Space-separated scopes (e.g. 'read write')">
+        </div>
+        <button type="submit">Get Access Token</button>
+      </form>
+      <div class="response" id="tokenResponse">
+        <h4>Response:</h4>
+        <pre><code id="tokenResponseCode"></code></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Token Introspection Section -->
+    <div class="card">
+      <h2>3. Validate Token</h2>
+      <p>Services can validate tokens before granting access.</p>
+      <form id="introspectForm">
+        <input type="text" id="introspectToken" placeholder="Access Token" required>
+        <input type="text" id="introspectClientId" placeholder="Service Client ID" required>
+        <input type="text" id="introspectClientSecret" placeholder="Service Client Secret" required>
+        <button type="submit">Introspect Token</button>
+      </form>
+      <div class="response" id="introspectResponse">
+        <h4>Response:</h4>
+        <pre><code id="introspectResponseCode"></code></pre>
+      </div>
+    </div>
+
+    <!-- Token Revocation Section -->
+    <div class="card">
+      <h2>4. Revoke Token</h2>
+      <p>Clients can revoke tokens when they're no longer needed.</p>
+      <form id="revokeForm">
+        <input type="text" id="revokeToken" placeholder="Access Token" required>
+        <input type="text" id="revokeClientId" placeholder="Client ID" required>
+        <input type="text" id="revokeClientSecret" placeholder="Client Secret" required>
+        <button type="submit">Revoke Token</button>
+      </form>
+      <div class="response" id="revokeResponse">
+        <h4>Response:</h4>
+        <pre><code id="revokeResponseCode"></code></pre>
+      </div>
+    </div>
+  </div>
+
+  <h2>API Documentation</h2>
+  <div class="card">
+    <h3>OAuth 2.0 Endpoints</h3>
+    <table>
+      <tr>
+        <th>Endpoint</th>
+        <th>Method</th>
+        <th>Description</th>
+      </tr>
+      <tr>
+        <td>/oauth/token</td>
+        <td>POST</td>
+        <td>Request an access token using client credentials</td>
+      </tr>
+      <tr>
+        <td>/oauth/introspect</td>
+        <td>POST</td>
+        <td>Validate an access token</td>
+      </tr>
+      <tr>
+        <td>/oauth/revoke</td>
+        <td>POST</td>
+        <td>Revoke an access token</td>
+      </tr>
+    </table>
+
+    <h3>Client Management Endpoints</h3>
+    <table>
+      <tr>
+        <th>Endpoint</th>
+        <th>Method</th>
+        <th>Description</th>
+      </tr>
+      <tr>
+        <td>/api/clients</td>
+        <td>GET</td>
+        <td>List all clients (admin only)</td>
+      </tr>
+      <tr>
+        <td>/api/clients</td>
+        <td>POST</td>
+        <td>Register a new client (admin only)</td>
+      </tr>
+      <tr>
+        <td>/api/clients/:id</td>
+        <td>GET</td>
+        <td>Get a specific client (admin only)</td>
+      </tr>
+      <tr>
+        <td>/api/clients/:id</td>
+        <td>PUT</td>
+        <td>Update a client (admin only)</td>
+      </tr>
+      <tr>
+        <td>/api/clients/:id/reset-secret</td>
+        <td>POST</td>
+        <td>Reset a client's secret (admin only)</td>
+      </tr>
+    </table>
+  </div>
+
+  <script>
+    // Admin Token Management
+    document.getElementById('saveAdminToken').addEventListener('click', () => {
+      const token = document.getElementById('adminToken').value.trim();
+      if (token) {
+        localStorage.setItem('adminToken', token);
+        document.getElementById('tokenStatus').textContent = 'Admin token saved!';
+        document.getElementById('tokenStatus').style.color = 'green';
+      } else {
+        document.getElementById('tokenStatus').textContent = 'Please enter a valid token!';
+        document.getElementById('tokenStatus').style.color = 'red';
+      }
+    });
+
+    document.getElementById('clearAdminToken').addEventListener('click', () => {
+      localStorage.removeItem('adminToken');
+      document.getElementById('adminToken').value = '';
+      document.getElementById('tokenStatus').textContent = 'Admin token cleared!';
+      document.getElementById('tokenStatus').style.color = 'orange';
+    });
+
+    // Initialize token status
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedToken = localStorage.getItem('adminToken');
+      if (savedToken) {
+        document.getElementById('adminToken').value = savedToken;
+        document.getElementById('tokenStatus').textContent = 'Admin token loaded from storage';
+        document.getElementById('tokenStatus').style.color = 'green';
+      }
+    });
+
+    // Register Client
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const responseElement = document.getElementById('registerResponseCode');
+
+      try {
+        // Get admin token from localStorage
+        const adminToken = localStorage.getItem('adminToken');
+        if (!adminToken) {
+          responseElement.textContent = 'Error: No admin token found. Please set an admin token first.';
+          return;
+        }
+
+        // Get selected scopes
+        const scopes = Array.from(document.querySelectorAll('input[name="scope"]:checked'))
+          .map(cb => cb.value);
+
+        const response = await fetch('/api/clients', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${adminToken}`
+          },
+          body: JSON.stringify({
+            name: document.getElementById('clientName').value,
+            contact_email: document.getElementById('contactEmail').value,
+            description: document.getElementById('description').value,
+            service_type: document.getElementById('serviceType').value,
+            scopes: scopes
+          })
+        });
+
+        const data = await response.json();
+        responseElement.textContent = JSON.stringify(data, null, 2);
+
+        // Auto-fill client ID and secret in the token form if successful
+        if (response.ok && data.client_id && data.client_secret) {
+          document.getElementById('clientId').value = data.client_id;
+          document.getElementById('clientSecret').value = data.client_secret;
+        }
+      } catch (error) {
+        responseElement.textContent = `Error: ${error.message}`;
+      }
+    });
+
+    // Request Token
+    document.getElementById('tokenForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const responseElement = document.getElementById('tokenResponseCode');
+
+      try {
+        const clientId = document.getElementById('clientId').value;
+        const clientSecret = document.getElementById('clientSecret').value;
+        const scopes = document.getElementById('tokenScopes').value;
+
+        // Create basic auth header
+        const basicAuth = btoa(`${clientId}:${clientSecret}`);
+
+        const response = await fetch('/oauth/token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': `Basic ${basicAuth}`
+          },
+          body: new URLSearchParams({
+            'grant_type': 'client_credentials',
+            'scope': scopes
+          })
+        });
+
+        const data = await response.json();
+        responseElement.textContent = JSON.stringify(data, null, 2);
+
+        // Auto-fill token in other forms if successful
+        if (response.ok && data.access_token) {
+          document.getElementById('introspectToken').value = data.access_token;
+          document.getElementById('revokeToken').value = data.access_token;
+        }
+      } catch (error) {
+        responseElement.textContent = `Error: ${error.message}`;
+      }
+    });
+
+    // Introspect Token
+    document.getElementById('introspectForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const responseElement = document.getElementById('introspectResponseCode');
+
+      try {
+        const token = document.getElementById('introspectToken').value;
+        const clientId = document.getElementById('introspectClientId').value;
+        const clientSecret = document.getElementById('introspectClientSecret').value;
+
+        // Create basic auth header
+        const basicAuth = btoa(`${clientId}:${clientSecret}`);
+
+        const response = await fetch('/oauth/introspect', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': `Basic ${basicAuth}`
+          },
+          body: new URLSearchParams({
+            'token': token
+          })
+        });
+
+        const data = await response.json();
+        responseElement.textContent = JSON.stringify(data, null, 2);
+      } catch (error) {
+        responseElement.textContent = `Error: ${error.message}`;
+      }
+    });
+
+    // Revoke Token
+    document.getElementById('revokeForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const responseElement = document.getElementById('revokeResponseCode');
+
+      try {
+        const token = document.getElementById('revokeToken').value;
+        const clientId = document.getElementById('revokeClientId').value;
+        const clientSecret = document.getElementById('revokeClientSecret').value;
+
+        // Create basic auth header
+        const basicAuth = btoa(`${clientId}:${clientSecret}`);
+
+        const response = await fetch('/oauth/revoke', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': `Basic ${basicAuth}`
+          },
+          body: new URLSearchParams({
+            'token': token
+          })
+        });
+
+        if (response.ok) {
+          responseElement.textContent = "Token successfully revoked (HTTP 200)";
+        } else {
+          const data = await response.json();
+          responseElement.textContent = JSON.stringify(data, null, 2);
+        }
+      } catch (error) {
+        responseElement.textContent = `Error: ${error.message}`;
+      }
+    });
+  </script>
+</body>
+</html>
